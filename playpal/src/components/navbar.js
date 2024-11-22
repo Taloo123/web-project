@@ -30,10 +30,10 @@ const Navbar = () => {
       <Button color="inherit" component={Link} to="/dashboard">
         Dashboard
       </Button>
-          <Button color="inherit" component={Link} to="/team-management">
+          <Button color="inherit" component={Link} to="/TeamManagement">
             Team Management
           </Button>
-          <Button color="inherit" component={Link} to="/match-scheduler">
+          <Button color="inherit" component={Link} to="/MatchScheduler">
             Match Scheduler
           </Button>
           <Button color="inherit" component={Link} to="/store">
