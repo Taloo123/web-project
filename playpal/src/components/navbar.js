@@ -1,7 +1,7 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button, IconButton } from "@mui/material";
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import "../styles/navbar.css";
 
 
@@ -22,24 +22,24 @@ const Navbar = () => {
         {/* Links at the end */}
         <div className="nav-links" style={{ display: 'flex' , marginRight: '30px'}}>
             {/* Home Link */}
-      <Button color="inherit" component={Link} to="/">
+      <Button color="inherit" component={NavLink} to="/">
         Home
       </Button>
 
       {/* Dashboard Link */}
-      <Button color="inherit" component={Link} to="/dashboard">
+      <Button color="inherit" component={NavLink} to="/dashboard">
         Dashboard
       </Button>
-          <Button color="inherit" component={Link} to="/TeamManagement">
+          <Button color="inherit" component={NavLink} to="/teamManagement">
             Team Management
           </Button>
-          <Button color="inherit" component={Link} to="/MatchScheduler">
+          <Button color="inherit" component={NavLink} to="/matchScheduler">
             Match Scheduler
           </Button>
-          <Button color="inherit" component={Link} to="/store">
+          <Button color="inherit" component={NavLink} to="/store">
             Store
           </Button>
-          <Button color="inherit" component={Link} to="/statistics-reports">
+          <Button color="inherit" component={NavLink} to="/reports">
             Stats & Reports
           </Button>
         </div>
