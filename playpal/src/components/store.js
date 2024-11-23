@@ -158,71 +158,83 @@ const Store = () => {
         <ShoppingCartIcon style={{ fontSize: 40, color:"white"}} />
       </IconButton>
 
-      {/* Cart Section */}
-      {cartVisible && (
-        <div className="cart-container" style={{ position: "fixed", right: 0, top: "100px", padding: "20px", width: "300px" }}>
-          <Typography variant="h4" align="center">
-            Shopping Cart
-          </Typography>
-          {cart.length === 0 ? (
-            <Typography variant="body1" align="center">
-              Your cart is empty
-            </Typography>
-          ) : (
-            <Grid container spacing={2}>
-              {cart.map((item, index) => (
-                <Grid item xs={12} key={index}>
-                  <Card className="cart-item">
-                    <CardContent>
-                      <Typography variant="h6">{item.name}</Typography>
-                      <Typography variant="body2">Rs. {item.price}</Typography>
-                      <Typography variant="body2">Quantity: {item.quantity}</Typography>
-                    </CardContent>
-                    <CardActions>
-                      <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={() => decreaseQuantity(item.id)}
-                      >
-                        -
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={() => increaseQuantity(item.id)}
-                      >
-                        +
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={() => removeFromCart(item.id)}
-                        className="btn-rem"
-                      >
-                        Remove
-                      </Button>
-                    </CardActions>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          )}
-          <Typography variant="h6" align="center" className="total-price">
-            Total: Rs. {cart.reduce((acc, item) => acc + item.price * item.quantity, 0)}
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            className="str-btn"
-            onClick={handleCheckout} // Redirect to payment page
-         >
-            Checkout
-          </Button>
-        </div>
+     {/* Cart Section */}
+{cartVisible && (
+  <div 
+    className="cart-container" 
+    style={{
+      position: "fixed", 
+      right: 0, 
+      top: "100px", 
+      padding: "20px", 
+      width: "300px", 
+      maxHeight: "calc(100vh - 160px)", // Ensure the container fits within the viewport
+      overflowY: "auto" // Enable vertical scrolling
+    }}
+  >
+    <Typography variant="h4" align="center">
+      Shopping Cart
+    </Typography>
+    {cart.length === 0 ? (
+      <Typography variant="body1" align="center">
+        Your cart is empty
+      </Typography>
+    ) : (
+      <Grid container spacing={2}>
+        {cart.map((item, index) => (
+          <Grid item xs={12} key={index}>
+            <Card className="cart-item">
+              <CardContent>
+                <Typography variant="h6">{item.name}</Typography>
+                <Typography variant="body2">Rs. {item.price}</Typography>
+                <Typography variant="body2">Quantity: {item.quantity}</Typography>
+              </CardContent>
+              <CardActions>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => decreaseQuantity(item.id)}
+                >
+                  -
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => increaseQuantity(item.id)}
+                >
+                  +
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => removeFromCart(item.id)}
+                  className="btn-rem"
+                >
+                  Remove
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    )}
+    <Typography variant="h6" align="center" className="total-price">
+      Total: Rs. {cart.reduce((acc, item) => acc + item.price * item.quantity, 0)}
+    </Typography>
+    <Button
+      variant="contained"
+      color="primary"
+      fullWidth
+      className="str-btn"
+      onClick={handleCheckout} // Redirect to payment page
+    >
+      Checkout
+    </Button>
+  </div>
       )}
     </div>
   );
 };
 
 export default Store;
+
