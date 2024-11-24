@@ -102,13 +102,16 @@ const Store = () => {
                   onClick={() => toggleDescription(product.id)}
                   style={{ cursor: "pointer" }}
                 >
-                  <CardMedia
-                    component="img"
-                    width="300"
-                    height="300"
-                    image={product.image}
-                    alt={product.name}
-                  />
+                   <CardMedia
+  component="img"
+  image={product.image}
+  alt={product.name}
+  style={{
+    width: "100%",       // Fit the width of the container
+    height: "100px",     // Set a fixed height for the frame
+    objectFit: "contain" // Ensure the entire image is visible
+  }}
+/>
                   <CardContent>
                     <Typography variant="h6" className="product-title">
                       {product.name}
