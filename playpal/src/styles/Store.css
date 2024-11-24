@@ -23,7 +23,7 @@
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
   }
   .store-content:hover{
-    transform: translateY(-5px) scale(1.05);
+    transform: translateY(-5px) scale(1.01);
     box-shadow: 0px 10px 25px rgba(255, 69, 0, 0.3), 0px 5px 15px rgba(0, 0, 0, 0.1); /* Elevated glow */
     color: #1b1f3b; /* Maintain readability */
   }
