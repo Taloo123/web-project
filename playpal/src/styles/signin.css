@@ -65,10 +65,10 @@
   }
   
   .signin-button:hover {
-    background-color: #b91f1f;
-    transform: scale(1.03);
+    background-color: #b91f1f !important;
+    transform: scale(1.05);
   }
-  
+
   .signin-footer {
     text-align: center;
     margin-top: 20px;
