@@ -1,7 +1,8 @@
 /* General Styles */
 .dashboard-container {
     font-family: "Arial", sans-serif;
-    background: linear-gradient(120deg, #1b1f3b, #dd524d); /* Vibrant gradient background */
+   /* background: linear-gradient(120deg, #1b1f3b, #dd524d); /* Vibrant gradient background */
+   background-image: url('../../images/pexels-unknown6user-1657332.jpg');
     color: #ffffff; /* Ensure text is visible on the dark background */
     min-height: 100vh;
     padding: 20px;

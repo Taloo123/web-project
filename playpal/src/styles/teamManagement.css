@@ -11,8 +11,10 @@
     align-items: center;
     justify-content: flex-start;
     position: relative;
+
   }
-  
+
+
   /* Content Layout */
   .team-management-content {
     margin-top: 20px;
@@ -22,6 +24,7 @@
     padding: 20px;
     width: 80%;
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+    animation: fadeInUp 0.8s ease;
   }
   
   .team-management-content:hover{
@@ -150,3 +153,13 @@
     font-size: 1rem;
   }
 
+  @keyframes fadeInUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }

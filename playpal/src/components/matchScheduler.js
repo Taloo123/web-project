@@ -115,7 +115,7 @@ const MatchScheduler = () => {
           <Button
             type="submit"
             variant="contained"
-            color="primary"
+            // color="primary"
             className="match-scheduler__submit-btn"
           >
             Schedule Match

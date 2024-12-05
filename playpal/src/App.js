@@ -9,6 +9,8 @@ import MatchScheduler from "./components/matchScheduler";
 import Store from "./components/store";
 import Reports from "./components/Reports";
 import Payment from "./components/Payment";
+import Signup from "./components/signup";
+import Signin from "./components/signin";
 
 function App() {
   return (
@@ -17,13 +19,16 @@ function App() {
         {/* <NavigationLinks /> Navbar with links */}
         
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/homepage" element={<HomePage />} />
+          <Route path="/" element={<Signup />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/teamManagement" element={<TeamManagement />} />
           <Route path="/matchScheduler" element={<MatchScheduler />} />
           <Route path="/store" element={<Store />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/Payment" element={<Payment />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/signin" element={<Signin />} />
         </Routes>
       </div>
     </Router>

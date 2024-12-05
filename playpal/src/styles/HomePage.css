@@ -6,7 +6,7 @@
 
 /* Hero Section */
 .hero-section {
-    background-image: url('C:\Users\HP\Desktop\web-project\playpal\images\pexels-unknown6user-1657332.jpg'); /* Add a sports-related image URL */
+    background-image: url('../../images/pexels-unknown6user-1657332.jpg'); /* Add a sports-related image URL */
     background-size: cover; /* Ensures the image covers the entire section */
     background-position: center; /* Keeps the focus on the center of the image */
     color: white;
