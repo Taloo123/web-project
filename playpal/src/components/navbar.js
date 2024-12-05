@@ -22,7 +22,7 @@ const Navbar = () => {
         {/* Links at the end */}
         <div className="nav-links" style={{ display: 'flex' , marginRight: '30px'}}>
             {/* Home Link */}
-      <Button color="inherit" component={NavLink} to="/">
+      <Button color="inherit" component={NavLink} to="/homepage">
         Home
       </Button>
 
