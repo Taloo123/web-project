@@ -33,13 +33,28 @@ const Signin = () => {
         password,
       });
 
-      console.log(response.data);
-      alert("Sign In successful!");
-      navigate("/dashboard"); // Redirect to dashboard or another page
-    } catch (error) {
-      console.error(error);
-      setError(error.response?.data?.message || "Invalid credentials or server error");
-    }
+    //   console.log(response.data);
+    //   alert("Sign In successful!");
+    //   navigate("/dashboard"); // Redirect to dashboard or another page
+    // } catch (error) {
+    //   console.error(error);
+    //   setError(error.response?.data?.message || "Invalid credentials or server error");
+    // }
+        const { token, message } = response.data;
+
+        // Save the token in localStorage
+        if (token) {
+          localStorage.setItem("token", token);
+          console.log("Token: ", token);
+          alert(message || "Sign In successful!");
+          navigate("/homepage"); // Redirect to dashboard or another page
+        } else {
+          throw new Error("Authentication failed. No token received.");
+        }
+      } catch (error) {
+        console.error(error);
+        setError(error.response?.data?.message || "Invalid credentials or server error");
+      }
   };
 
   return (

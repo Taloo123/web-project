@@ -4,7 +4,7 @@ import "../styles/dashboard.css"; // Centralized CSS for Dashboard styling
 
 const Dashboard = () => {
   return (
-    <div classname="navbar">
+    <div className="navbar">
       <Navbar />
    
     

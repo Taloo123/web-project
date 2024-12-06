@@ -1,11 +1,23 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Button, IconButton } from "@mui/material";
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "../styles/navbar.css";
 
 
 const Navbar = () => {
+
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    // Remove the token from localStorage
+    localStorage.removeItem("token");
+
+    // Redirect to the Sign In page
+    navigate("/signin");
+
+    alert("You have successfully logged out!");
+  };
+
   return (
     <AppBar position="static" className="navbar">
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
@@ -42,7 +54,7 @@ const Navbar = () => {
           <Button color="inherit" component={NavLink} to="/reports">
             Stats & Reports
           </Button>
-          <Button color="inherit" component={NavLink} to="/signin">
+          <Button color="inherit"  onClick={handleLogout}>
             Logout
           </Button>
         </div>
