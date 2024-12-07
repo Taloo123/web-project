@@ -13,7 +13,7 @@ app.use(cors());
 const MONGO_URI = "mongodb+srv://i221270:22i1270@webcluster.yt0z7.mongodb.net/playpal?retryWrites=true&w=majority&appName=WebCluster";
 
 // JWT Secret (use environment variable in production)
-const JWT_SECRET = "your_jwt_secret"; // Replace with a secure key
+const JWT_SECRET = "playpal_!@#3XnDsd98as&2Efhfd78#strongSecretKey";
 
 // Connect to MongoDB
 mongoose.connect(MONGO_URI, { 
