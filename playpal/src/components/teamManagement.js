@@ -1,76 +1,96 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Button, Grid, Card, CardContent } from "@mui/material";
+import { Container, Typography, Button } from "@mui/material";
 import Navbar from "./navbar"; // Navbar for navigation
 import "../styles/teamManagement.css"; // Separate CSS for Team Management styling
+import axios from "axios"; // Axios for API calls
 
 const TeamManagement = () => {
-  // State for team members
-  const [teamMembers, setTeamMembers] = useState([
-    { name: "Alice Johnson", age: 25, role: "Vice Captain", matchesPlayed: 20 },
-    { name: "Bob Smith", age: 28, role: "All-Rounder", matchesPlayed: 18 },
-    { name: "Charlie Brown", age: 22, role: "Batsman", matchesPlayed: 15 },
-    { name: "Dana White", age: 30, role: "Bowler", matchesPlayed: 22 },
-  ]);
-
-  // State for form inputs
+  const [teamMembers, setTeamMembers] = useState([]);
   const [newMember, setNewMember] = useState({
     name: "",
     age: "",
     role: "",
     matchesPlayed: "",
   });
-
-  // State to track if editing
   const [editingIndex, setEditingIndex] = useState(null);
 
-  // Update document title
+  const API_URL = "http://localhost:5000/api/team"; // Replace with your backend URL
+  const token = localStorage.getItem("token"); // Replace with your auth token retrieval method
+
+  // Fetch team members on component mount
   useEffect(() => {
+    fetchTeamMembers();
     document.title = "Team Management";
   }, []);
 
-  // Handle form input changes
+  const fetchTeamMembers = async () => {
+    try {
+      const response = await axios.get(API_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setTeamMembers(response.data);
+    } catch (error) {
+      console.error("Error fetching team members:", error);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewMember({ ...newMember, [name]: value });
   };
 
-  // Handle form submission
-  const handleFormSubmit = (e) => {
-    e.preventDefault(); // Prevent default form submission
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
 
-    if (editingIndex !== null) {
-      // Edit existing member
-      const updatedMembers = [...teamMembers];
-      updatedMembers[editingIndex] = {
-        ...newMember,
-        matchesPlayed: parseInt(newMember.matchesPlayed, 10),
-        age: parseInt(newMember.age, 10),
-      };
-      setTeamMembers(updatedMembers);
-      setEditingIndex(null); // Reset editing index
-    } else {
-      // Add new member
-      setTeamMembers([ 
-        ...teamMembers, 
-        { ...newMember, matchesPlayed: parseInt(newMember.matchesPlayed, 10), age: parseInt(newMember.age, 10) }
-      ]);
+    try {
+      if (editingIndex !== null) {
+        // Edit existing member
+        const updatedMember = {
+          ...newMember,
+          matchesPlayed: parseInt(newMember.matchesPlayed, 10),
+          age: parseInt(newMember.age, 10),
+        };
+
+        await axios.put(`${API_URL}/${teamMembers[editingIndex]._id}`, updatedMember, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        fetchTeamMembers(); // Refresh data
+        setEditingIndex(null);
+      } else {
+        // Add new member
+        await axios.post(API_URL, {
+          ...newMember,
+          matchesPlayed: parseInt(newMember.matchesPlayed, 10),
+          age: parseInt(newMember.age, 10),
+        }, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        fetchTeamMembers(); // Refresh data
+      }
+
+      setNewMember({ name: "", age: "", role: "", matchesPlayed: "" });
+    } catch (error) {
+      console.error("Error saving team member:", error);
     }
-
-    // Clear the form inputs
-    setNewMember({ name: "", age: "", role: "", matchesPlayed: "" });
   };
 
-  // Handle edit button click
   const handleEditClick = (index) => {
-    const member = teamMembers[index];
-    setNewMember(member); // Populate form fields with the member's data
-    setEditingIndex(index); // Set the index of the member being edited
+    setNewMember(teamMembers[index]);
+    setEditingIndex(index);
   };
 
-  // Handle remove button click
-  const handleRemoveClick = (index) => {
-    const updatedMembers = teamMembers.filter((_, i) => i !== index);
-    setTeamMembers(updatedMembers);
+  const handleRemoveClick = async (index) => {
+    try {
+      await axios.delete(`${API_URL}/${teamMembers[index]._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      fetchTeamMembers(); // Refresh data
+    } catch (error) {
+      console.error("Error deleting team member:", error);
+    }
   };
 
   return (
@@ -112,7 +132,7 @@ const TeamManagement = () => {
                       </Button>
                       <Button
                         variant="contained"
-                        color="primary"
+                        color="secondary"
                         onClick={() => handleRemoveClick(index)}
                         className="action-button remove"
                       >

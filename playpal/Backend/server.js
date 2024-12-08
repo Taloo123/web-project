@@ -3,7 +3,12 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
+
 const User = require("./models/User");
+const teamMemberRoutes = require("./routes/members"); // Import team routes
+
+const matchRoutes = require("./routes/matchRoutes");
+const authenticateToken = require("./middleware/authenticateToken"); // Middleware
 
 const app = express();
 app.use(express.json());
@@ -12,45 +17,16 @@ app.use(cors());
 // MongoDB URI
 const MONGO_URI = "mongodb+srv://i221270:22i1270@webcluster.yt0z7.mongodb.net/playpal?retryWrites=true&w=majority&appName=WebCluster";
 
-// JWT Secret (use environment variable in production)
+// JWT Secret
 const JWT_SECRET = "playpal_!@#3XnDsd98as&2Efhfd78#strongSecretKey";
 
 // Connect to MongoDB
-mongoose.connect(MONGO_URI, { 
-  useNewUrlParser: true, 
-  useUnifiedTopology: true, 
-  serverSelectionTimeoutMS: 30000 
-})
+mongoose
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log("MongoDB connected"))
-  .catch(err => console.error("MongoDB connection error:", err));
+  .catch((err) => console.error("MongoDB connection error:", err));
 
-// Mongoose connection debugging
-mongoose.connection.on("connected", () => {
-  console.log("Mongoose connected to MongoDB");
-});
-mongoose.connection.on("error", (err) => {
-  console.error("Mongoose connection error:", err);
-});
-mongoose.connection.on("disconnected", () => {
-  console.log("Mongoose disconnected");
-});
-
-// Middleware to authenticate JWT
-const authenticateToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1]; // Expecting 'Bearer <token>'
-  if (!token) {
-    return res.status(401).json({ message: "Access denied, token missing" });
-  }
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded; // Add user data to the request object
-    next();
-  } catch (error) {
-    return res.status(403).json({ message: "Invalid or expired token" });
-  }
-};
-
-// Signup API route
+// Authentication routes
 app.post("/api/signup", async (req, res) => {
   const { name, email, password, confirmPassword } = req.body;
 
@@ -67,19 +43,10 @@ app.post("/api/signup", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-    });
-
+    const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
 
-    // Generate JWT for the new user
-    const token = jwt.sign({ id: newUser._id, email: newUser.email }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
+    const token = jwt.sign({ id: newUser._id, email: newUser.email }, JWT_SECRET, { expiresIn: "1h" });
     res.status(201).json({ message: "User created successfully", token });
   } catch (error) {
     console.error(error);
@@ -87,7 +54,6 @@ app.post("/api/signup", async (req, res) => {
   }
 });
 
-// Signin API route
 app.post("/api/signin", async (req, res) => {
   const { email, password } = req.body;
 
@@ -102,11 +68,7 @@ app.post("/api/signin", async (req, res) => {
       return res.status(400).json({ message: "Invalid password" });
     }
 
-    // Generate JWT
-    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
+    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: "1h" });
     res.status(200).json({ message: "Sign In successful", token });
   } catch (error) {
     console.error(error);
@@ -114,10 +76,11 @@ app.post("/api/signin", async (req, res) => {
   }
 });
 
-// Protected Route Example
-app.get("/api/protected", authenticateToken, (req, res) => {
-  res.json({ message: "Access granted to protected route", user: req.user });
-});
+// Team Management Routes
+app.use("/api/team", teamMemberRoutes); // Use team routes
+
+app.use("/api/matches", matchRoutes);
+
 
 // Start the Server
 const PORT = process.env.PORT || 5000;
