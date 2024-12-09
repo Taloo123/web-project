@@ -2,6 +2,7 @@
     font-family: "Arial", sans-serif;
     background-color: #f4f4f9; /* Light gray for better contrast with sections */
     color: #1b1f3b; /* Deep navy for consistency with the navbar */
+    
 }
 
 /* Hero Section */
@@ -16,6 +17,7 @@
     box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
     position: relative; /* Required for overlay */
     overflow: hidden; /* Hides any extra elements */
+    
 }
 
 /* Add a dynamic glowing overlay */

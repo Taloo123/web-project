@@ -7,6 +7,7 @@
     background-image: url('../../images/pexels-unknown6user-1657332.jpg');
     color: #ffffff;
     padding: 20px;
+    width:100vw;
     display: flex;
     flex-direction: column;
     align-items: center;
