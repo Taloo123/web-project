@@ -1,86 +1,56 @@
+// routes/matchRoutes.js
 const express = require("express");
 const router = express.Router();
-const User = require("../models/User"); 
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const Match = require("../models/matchModel");
+const User = require("../models/User"); // Import the User model
+const authenticate = require("../middleware/authenticateToken");
 
-
-// JWT Secret
-const JWT_SECRET = "playpal_!@#3XnDsd98as&2Efhfd78#strongSecretKey";
-
-
-// Authentication routes
-router.post("/signup", async (req, res) => {
-  const { name, email, password, confirmPassword, role } = req.body;
-
-  if (password !== confirmPassword) {
-    return res.status(400).json({ message: "Passwords do not match" });
-  }
-
+// GET all scheduled matches for the logged-in user
+router.get("/", authenticate, async (req, res) => {
   try {
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-      role,
-    });
-
-    await newUser.save();
-
-    // Generate JWT for the new user
-    const token = jwt.sign({ id: newUser._id, email: newUser.email }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    res.status(201).json({ message: "User created successfully", token });
+    // Fetch matches that are scheduled by the logged-in user (captain)
+    const matches = await Match.find({ scheduledBy: req.user.id }); // Filter by the user's ID
+    res.status(200).json(matches);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error fetching matches:", error);
+    res.status(500).json({ message: "Server Error" });
   }
 });
 
-// Signin API route
-router.post("/signin", async (req, res) => {
-  const { email, password } = req.body;
+// POST to schedule a new match (only accessible by captains)
+router.post("/", authenticate, async (req, res) => {
+  const { team1, team2, venue, date, time } = req.body;
+
+  if (!team1 || !team2 || !venue || !date || !time) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
 
   try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
+    // Get the user who is scheduling the match
+    const user = await User.findById(req.user.id); // req.user.id comes from the authenticate middleware
+    if (user.role !== "captain") {
+      return res.status(403).json({ message: "Only captains can schedule matches" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid password" });
-    }
-
-    // Generate JWT
-    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    // res.status(200).json({ message: "Sign In successful", token });
-    res.status(200).json({
-      message: "Sign In successful",
-      token,
-      user: {
-        name: user.name,
-      },
-    });
+    const newMatch = new Match({ team1, team2, venue, date, time, scheduledBy: req.user.id });
+    await newMatch.save();
+    res.status(201).json(newMatch);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error scheduling match:", error);
+    res.status(500).json({ message: "Server Error" });
   }
 });
 
-  module.exports = router;
+// Send notifications (just an example endpoint)
+router.post("/send-notifications", authenticate, async (req, res) => {
+  try {
+    // For simplicity, just send a success message here
+    console.log("Sending notifications...");
+    res.status(200).json({ message: "Notifications sent successfully!" });
+  } catch (error) {
+    console.error("Error sending notifications:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+});
 
-
+module.exports = router;

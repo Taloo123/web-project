@@ -13,15 +13,18 @@ const TeamManagement = () => {
     matchesPlayed: "",
   });
   const [editingIndex, setEditingIndex] = useState(null);
+  const [userRole, setUserRole] = useState(""); // Store the user role
 
   const API_URL = "http://localhost:5000/api/team"; // Replace with your backend URL
   const token = localStorage.getItem("token"); // Replace with your auth token retrieval method
 
-  const name = localStorage.getItem("userName");
-  const date = Date.now();
-
-  // Fetch team members on component mount
+  // Fetch user role and team members on component mount
   useEffect(() => {
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decode JWT to get role
+      setUserRole(decodedToken.role); // Set user role (captain, member, etc.)
+    }
+
     fetchTeamMembers();
     document.title = "Team Management";
   }, []);
@@ -44,11 +47,6 @@ const TeamManagement = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const notification = {
-      message: `You added a player`,
-      name: name,
-    };
-
     try {
       if (editingIndex !== null) {
         // Edit existing member
@@ -73,9 +71,6 @@ const TeamManagement = () => {
         }, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        console.log("Notification: ", notification);
-        await axios.post('http://localhost:5000/api/StoreNotification', notification);
 
         fetchTeamMembers(); // Refresh data
       }
@@ -132,22 +127,26 @@ const TeamManagement = () => {
                     <td>{member.role}</td>
                     <td>{member.matchesPlayed}</td>
                     <td>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleEditClick(index)}
-                        className="action-button edit"
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={() => handleRemoveClick(index)}
-                        className="action-button remove"
-                      >
-                        Remove
-                      </Button>
+                      {userRole === "captain" && (
+                        <>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleEditClick(index)}
+                            className="action-button edit"
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="secondary"
+                            onClick={() => handleRemoveClick(index)}
+                            className="action-button remove"
+                          >
+                            Remove
+                          </Button>
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -156,59 +155,61 @@ const TeamManagement = () => {
           </div>
 
           {/* Add or Edit Member */}
-          <div className="add-member-section">
-            <Typography variant="h3" align="center" color="error" gutterBottom>
-              {editingIndex !== null ? "Edit Member" : "Add New Member"}
-            </Typography>
-            <form onSubmit={handleFormSubmit}>
-              <input
-                type="text"
-                name="name"
-                value={newMember.name}
-                onChange={handleInputChange}
-                placeholder="Name"
-                className="input-field"
-                required
-              />
-              <input
-                type="number"
-                name="age"
-                value={newMember.age}
-                onChange={handleInputChange}
-                placeholder="Age"
-                className="input-field"
-                required
-                min="0"
-              />
-              <input
-                type="text"
-                name="role"
-                value={newMember.role}
-                onChange={handleInputChange}
-                placeholder="Role"
-                className="input-field"
-                required
-              />
-              <input
-                type="number"
-                name="matchesPlayed"
-                value={newMember.matchesPlayed}
-                onChange={handleInputChange}
-                placeholder="Matches Played"
-                className="input-field"
-                required
-                min="0"
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                className="action-button add"
-              >
-                {editingIndex !== null ? "Update Member" : "Add Member"}
-              </Button>
-            </form>
-          </div>
+          {userRole === "captain" && (
+            <div className="add-member-section">
+              <Typography variant="h3" align="center" color="error" gutterBottom>
+                {editingIndex !== null ? "Edit Member" : "Add New Member"}
+              </Typography>
+              <form onSubmit={handleFormSubmit}>
+                <input
+                  type="text"
+                  name="name"
+                  value={newMember.name}
+                  onChange={handleInputChange}
+                  placeholder="Name"
+                  className="input-field"
+                  required
+                />
+                <input
+                  type="number"
+                  name="age"
+                  value={newMember.age}
+                  onChange={handleInputChange}
+                  placeholder="Age"
+                  className="input-field"
+                  required
+                  min="0"
+                />
+                <input
+                  type="text"
+                  name="role"
+                  value={newMember.role}
+                  onChange={handleInputChange}
+                  placeholder="Role"
+                  className="input-field"
+                  required
+                />
+                <input
+                  type="number"
+                  name="matchesPlayed"
+                  value={newMember.matchesPlayed}
+                  onChange={handleInputChange}
+                  placeholder="Matches Played"
+                  className="input-field"
+                  required
+                  min="0"
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  className="action-button add"
+                >
+                  {editingIndex !== null ? "Update Member" : "Add Member"}
+                </Button>
+              </form>
+            </div>
+          )}
         </div>
       </div>
     </div>
