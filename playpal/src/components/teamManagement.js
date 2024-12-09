@@ -11,9 +11,11 @@ const TeamManagement = () => {
     age: "",
     role: "",
     matchesPlayed: "",
+    team: "",
   });
   const [editingIndex, setEditingIndex] = useState(null);
   const [userRole, setUserRole] = useState(""); // Store the user role
+  const [errorMessage, setErrorMessage] = useState(""); // Error message state
 
   const API_URL = "http://localhost:5000/api/team"; // Replace with your backend URL
   const token = localStorage.getItem("token"); // Replace with your auth token retrieval method
@@ -75,9 +77,13 @@ const TeamManagement = () => {
         fetchTeamMembers(); // Refresh data
       }
 
-      setNewMember({ name: "", age: "", role: "", matchesPlayed: "" });
+      setNewMember({ name: "", age: "", role: "", matchesPlayed: "", team: "" });
+      setErrorMessage(""); // Clear errors on success
     } catch (error) {
       console.error("Error saving team member:", error);
+      if (error.response && error.response.data.message) {
+        setErrorMessage(error.response.data.message);
+      }
     }
   };
 
@@ -116,6 +122,7 @@ const TeamManagement = () => {
                   <th>Age</th>
                   <th>Role</th>
                   <th>Matches Played</th>
+                  <th>Team</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -126,6 +133,7 @@ const TeamManagement = () => {
                     <td>{member.age}</td>
                     <td>{member.role}</td>
                     <td>{member.matchesPlayed}</td>
+                    <td>{member.team}</td>
                     <td>
                       {userRole === "captain" && (
                         <>
@@ -199,6 +207,15 @@ const TeamManagement = () => {
                   required
                   min="0"
                 />
+                <input
+                  type="text"
+                  name="team"
+                  value={newMember.team}
+                  onChange={handleInputChange}
+                  placeholder="Team"
+                  className="input-field"
+                  required
+                />
                 <Button
                   type="submit"
                   variant="contained"
@@ -208,6 +225,7 @@ const TeamManagement = () => {
                   {editingIndex !== null ? "Update Member" : "Add Member"}
                 </Button>
               </form>
+              {errorMessage && <Typography color="error">{errorMessage}</Typography>}
             </div>
           )}
         </div>

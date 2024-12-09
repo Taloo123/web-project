@@ -16,8 +16,8 @@ router.get('/teamMemberByName/:name', async (req, res) => {
 
     // Return the team and role of the team member
     res.json({
-      team: teamMember.name, 
-      //team: teamMember.teamName,
+      
+      team: teamMember.teamName,
       role: teamMember.role,
       matchesPlayed: teamMember.matchesPlayed,
     });
