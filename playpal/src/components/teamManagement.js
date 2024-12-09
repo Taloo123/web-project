@@ -17,6 +17,9 @@ const TeamManagement = () => {
   const API_URL = "http://localhost:5000/api/team"; // Replace with your backend URL
   const token = localStorage.getItem("token"); // Replace with your auth token retrieval method
 
+  const name = localStorage.getItem("userName");
+  const date = Date.now();
+
   // Fetch team members on component mount
   useEffect(() => {
     fetchTeamMembers();
@@ -41,6 +44,10 @@ const TeamManagement = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    const notification = {
+      message: `You added a player`,
+      name: name,
+    };
 
     try {
       if (editingIndex !== null) {
@@ -66,6 +73,9 @@ const TeamManagement = () => {
         }, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        console.log("Notification: ", notification);
+        await axios.post('http://localhost:5000/api/StoreNotification', notification);
 
         fetchTeamMembers(); // Refresh data
       }

@@ -15,6 +15,7 @@ const MatchScheduler = () => {
 
   const API_URL = "http://localhost:5000/api/matches"; // Replace with your backend URL
   const token = localStorage.getItem("token"); // Replace with your auth token retrieval method
+  const name = localStorage.getItem("userName");
 
   // Fetch scheduled matches on component mount
   useEffect(() => {
@@ -38,10 +39,20 @@ const MatchScheduler = () => {
     if (team1 && team2 && venue && date && time) {
       const newMatch = { team1, team2, venue, date, time };
 
+      // Create a new notification for the user/team
+      const notification = {
+        message: `You scheduled a match between for ${date}`,
+        name: name,
+      };
+
       try {
         await axios.post(API_URL, newMatch, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        // Send the notification to the backend
+        console.log("Notification: ", notification);
+        await axios.post('http://localhost:5000/api/StoreNotification', notification);
+
         fetchScheduledMatches(); // Refresh match list
         // Clear form inputs
         setTeam1("");

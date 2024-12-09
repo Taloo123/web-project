@@ -9,9 +9,10 @@ const Dashboard = () => {
     role: "",
     matchesPlayed: 0,
   });
+  const [notifications, setNotifications] = useState([]);
 
   const userName = localStorage.getItem("userName");
-console.log("Username: ", userName); // Check if userName is retrieved correctly
+  console.log("Username: ", userName); // Check if userName is retrieved correctly
 
   useEffect(() => {
     // Fetch user data from the backend API by name
@@ -25,6 +26,20 @@ console.log("Username: ", userName); // Check if userName is retrieved correctly
     };
 
     fetchUserData();
+  }, [userName]);
+
+  useEffect(() => {
+    // Fetch notifications for the user when the component mounts
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/notifications/${userName}`);
+        setNotifications(response.data); // Assuming response data is an array of notification messages
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+
+    fetchNotifications();
   }, [userName]);
 
   return (
@@ -45,9 +60,14 @@ console.log("Username: ", userName); // Check if userName is retrieved correctly
           <div className="dashboard-section notifications">
             <h2>Notifications</h2>
             <ul>
-              <li>Match scheduled for 25th Nov at 3:00 PM</li>
-              <li>New team member added: John Doe</li>
-              <li>Reminder: Update your profile picture</li>
+              {/* Render notifications dynamically */}
+              {notifications.length > 0 ? (
+                notifications.map((notification, index) => (
+                  <li key={index}>{notification}</li>
+                ))
+              ) : (
+                <li>No new notifications</li>
+              )}
             </ul>
           </div>
 
