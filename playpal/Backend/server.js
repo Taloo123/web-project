@@ -3,12 +3,13 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
-
 const User = require("./models/User");
+const productRoutes = require("./routes/ProductRoutes");
+const cartRoutes = require("./routes/CartRoutes");
 const teamMemberRoutes = require("./routes/members"); // Import team routes
-
 const matchRoutes = require("./routes/matchRoutes");
 const authenticateToken = require("./middleware/authenticateToken"); // Middleware
+
 
 const app = express();
 app.use(express.json());
@@ -80,7 +81,9 @@ app.post("/api/signin", async (req, res) => {
 app.use("/api/team", teamMemberRoutes); // Use team routes
 
 app.use("/api/matches", matchRoutes);
-
+// Use Routes
+app.use("/api/products", productRoutes);
+app.use("/api/cart", cartRoutes);
 
 // Start the Server
 const PORT = process.env.PORT || 5000;
