@@ -11,6 +11,7 @@ import Reports from "./components/Reports";
 import Payment from "./components/Payment";
 import Signup from "./components/signup";
 import Signin from "./components/signin";
+import CaptainForm from "./components/captainForm";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/Payment" element={<Payment />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/signin" element={<Signin />} />
+          <Route path="/captainForm" element={<CaptainForm/>} />
         </Routes>
       </div>
     </Router>

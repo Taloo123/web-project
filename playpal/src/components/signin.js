@@ -45,6 +45,7 @@ const Signin = () => {
         // Save the token in localStorage
         if (token) {
           localStorage.setItem("token", token);
+          localStorage.setItem("userName", response.data.user.name);  // Store the user's name
           console.log("Token: ", token);
           alert(message || "Sign In successful!");
           navigate("/homepage"); // Redirect to dashboard or another page

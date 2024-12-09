@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { TextField, Button, Typography, Box, IconButton } from "@mui/material";
-import SportsSoccerIcon from '@mui/icons-material/SportsSoccer'; // PlayPal symbol
-import axios from "axios"; // Import axios to handle HTTP requests
+import { TextField, Button, Typography, Box, IconButton, RadioGroup, FormControlLabel, Radio } from "@mui/material";
+import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
+import axios from "axios";
 import "../styles/signup.css";
 
 const Signup = () => {
@@ -11,12 +11,12 @@ const Signup = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    role: "player",
   });
-
+  const [role, setRole] = useState("player"); // Default role: Player
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Handle form input changes
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -24,28 +24,44 @@ const Signup = () => {
     });
   };
 
-  // Handle form submission
+  const handleRoleChange = (e) => {
+    const newRole = e.target.value;
+    setRole(newRole);  // Update role state
+    setFormData({
+      ...formData,
+      role: newRole,  // Update role in formData as well
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { name, email, password, confirmPassword } = formData;
+    const { name, email, password, confirmPassword, role } = formData;
 
     if (password !== confirmPassword) {
       alert("Passwords do not match");
       return;
     }
 
+    console.log("Submitting signup with role:", role);
+    
     try {
       const response = await axios.post("http://localhost:5000/api/signup", {
         name,
         email,
         password,
         confirmPassword,
+        role,
       });
-      alert(response.data.message);
-      console.log(response.data);
-      alert("User registered successfully!");
-      navigate("/signin");
+
+      // alert(response.data.message);
+
+      if (role === "captain") {
+        navigate("/captainForm"); // Redirect to the caption form page
+      } else {
+        alert("User registered successfully!");
+        navigate("/signin"); // Redirect to the signin page
+      }
     } catch (error) {
       console.error(error);
       setError(error.response?.data?.message || "Server error");
@@ -55,26 +71,23 @@ const Signup = () => {
   return (
     <Box className="signup-page-container">
       <Box className="signup-form-container">
-        {/* PlayPal Logo and Symbol */}
         <div className="playpal-logo">
           <IconButton edge="start" color="inherit" aria-label="logo" className="playpal-logo-icon">
-            <Link to="/dashboard"> <SportsSoccerIcon fontSize="large" /></Link>
-            {/* <SportsSoccerIcon fontSize="large" /> */}
+            <Link to="/dashboard">
+              <SportsSoccerIcon fontSize="large" />
+            </Link>
           </IconButton>
           <Typography variant="h6" className="playpal-logo-text">
             PlayPal
           </Typography>
         </div>
 
-        {/* Signup Title */}
         <Typography variant="h4" className="signup-title" gutterBottom>
           Create an Account
         </Typography>
 
-        {/* Error Message */}
         {error && <Typography color="error">{error}</Typography>}
 
-        {/* Form */}
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
@@ -123,17 +136,21 @@ const Signup = () => {
             value={formData.confirmPassword}
             onChange={handleChange}
           />
-          <Button
-            fullWidth
-            variant="contained"
-            className="signup-button"
-            type="submit"
-          >
-            Sign Up
+
+          {/* Radio Buttons for Role Selection */}
+          <Typography variant="body1" className="role-selection-title" gutterBottom>
+            Select Role
+          </Typography>
+          <RadioGroup row value={role} onChange={handleRoleChange} className="role-selection-group">
+            <FormControlLabel value="captain" control={<Radio />} label="Captain" />
+            <FormControlLabel value="player" control={<Radio />} label="Player" />
+          </RadioGroup>
+
+          <Button fullWidth variant="contained" className="signup-button" type="submit">
+            {role === "captain" ? "Next" : "Sign Up"}
           </Button>
         </form>
 
-        {/* Footer Section */}
         <Typography className="signup-footer" mt={2}>
           Already have an account?{" "}
           <a href="/signin" className="signup-link">

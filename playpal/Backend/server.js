@@ -4,10 +4,13 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const User = require("./models/User");
+const userRoutes = require("./routes/usersRoutes");
 const productRoutes = require("./routes/ProductRoutes");
 const cartRoutes = require("./routes/CartRoutes");
 const teamMemberRoutes = require("./routes/members"); // Import team routes
 const matchRoutes = require("./routes/matchRoutes");
+const TeamDetailsRoute = require("./routes/TeamDetails");
+const dashboardRoute = require("./routes/dashboardRoute");
 const authenticateToken = require("./middleware/authenticateToken"); // Middleware
 
 
@@ -18,72 +21,51 @@ app.use(cors());
 // MongoDB URI
 const MONGO_URI = "mongodb+srv://i221270:22i1270@webcluster.yt0z7.mongodb.net/playpal?retryWrites=true&w=majority&appName=WebCluster";
 
-// JWT Secret
+// JWT Secret (use environment variable in production)
 const JWT_SECRET = "playpal_!@#3XnDsd98as&2Efhfd78#strongSecretKey";
 
 // Connect to MongoDB
-mongoose
-  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(MONGO_URI, { 
+  useNewUrlParser: true, 
+  useUnifiedTopology: true, 
+  serverSelectionTimeoutMS: 30000 
+})
   .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+  .catch(err => console.error("MongoDB connection error:", err));
 
-// Authentication routes
-app.post("/api/signup", async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body;
-
-  if (password !== confirmPassword) {
-    return res.status(400).json({ message: "Passwords do not match" });
-  }
-
-  try {
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const newUser = new User({ name, email, password: hashedPassword });
-    await newUser.save();
-
-    const token = jwt.sign({ id: newUser._id, email: newUser.email }, JWT_SECRET, { expiresIn: "1h" });
-    res.status(201).json({ message: "User created successfully", token });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
+// Mongoose connection debugging
+mongoose.connection.on("connected", () => {
+  console.log("Mongoose connected to MongoDB");
+});
+mongoose.connection.on("error", (err) => {
+  console.error("Mongoose connection error:", err);
+});
+mongoose.connection.on("disconnected", () => {
+  console.log("Mongoose disconnected");
 });
 
-app.post("/api/signin", async (req, res) => {
-  const { email, password } = req.body;
+// Use the routes for signup and signin
+app.use("/api", userRoutes); // This will handle both /api/signup and /api/signin
 
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
-    }
+// Use Dashboard route 
+app.use("/api", dashboardRoute); 
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid password" });
-    }
-
-    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, { expiresIn: "1h" });
-    res.status(200).json({ message: "Sign In successful", token });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// Use TeamDetails route
+app.use("/api/TeamDetails", TeamDetailsRoute);
 
 // Team Management Routes
 app.use("/api/team", teamMemberRoutes); // Use team routes
 
 app.use("/api/matches", matchRoutes);
+
 // Use Routes
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
+
+// Protected Route Example
+app.get("/api/protected", authenticateToken, (req, res) => {
+  res.json({ message: "Access granted to protected route", user: req.user });
+});
 
 // Start the Server
 const PORT = process.env.PORT || 5000;

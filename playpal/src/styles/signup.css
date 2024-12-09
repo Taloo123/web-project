@@ -92,3 +92,15 @@
     text-decoration: underline;
   }
   
+
+  .role-selection-title {
+    font-size: 1rem;
+    color: #555;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .role-selection-group {
+    justify-content: center;
+    margin-bottom: 20px;
+  }
