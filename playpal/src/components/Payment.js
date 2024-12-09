@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { TextField, Button, FormControl, RadioGroup, FormControlLabel, Radio, Card, CardContent, Typography, Alert } from "@mui/material";
-import { useLocation } from "react-router-dom";
+
 import Navbar from "./navbar";
 import "../styles/payment.css";
+import axios from "axios"; // Make sure to install axios
 
 const Payment = () => {
-  const { state } = useLocation(); // Get cart data passed from store page
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -19,8 +20,27 @@ const Payment = () => {
 
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [cart, setCart] = useState([]); // Store cart data from API
 
-  const cart = state?.cart || []; // Default to an empty array if no cart is passed
+  // Fetch cart data from the API when component mounts
+  useEffect(() => {
+    const fetchCartData = async () => {
+      try {
+        const token = localStorage.getItem("token"); // Get token from localStorage
+        const response = await axios.get("http://localhost:5000/api/cart", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setCart(response.data.items); // Set cart items from API response
+      } catch (error) {
+        console.error("Error fetching cart data:", error);
+        setErrorMessage("Cart is empty.");
+      }
+    };
+
+    fetchCartData();
+  }, []);
 
   // Handle form input change
   const handleChange = (event) => {
@@ -29,7 +49,7 @@ const Payment = () => {
   };
 
   // Handle payment form submission
-  const handlePaymentSubmit = (event) => {
+  const handlePaymentSubmit = async (event) => {
     event.preventDefault();
 
     if (!formData.name || !formData.email || !formData.address || !formData.postalCode) {
@@ -53,12 +73,58 @@ const Payment = () => {
     }
 
     setErrorMessage(""); // Reset error message
-    setPaymentSuccess(true); // Show payment success alert
+   
+    try {
+      const token = localStorage.getItem("token");
+  
+      // Make API request to process payment and update product quantities
+      const response = await axios.put(
+        "http://localhost:5000/api/cart/payment",
+        {}, // Pass any required payload if needed
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      if (response.data.success) {
+        setPaymentSuccess(true); // Show payment success alert
+        try {
+          // Send request to clear the cart after successful payment
+          const token = localStorage.getItem("token");
+          await axios.delete("http://localhost:5000/api/cart", {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+    
+          // Update the local cart state to clear the cart
+          setCart([]); // Clear cart locally
+        } catch (error) {
+          console.error("Error clearing cart:", error);
+          setErrorMessage("Failed to clear the cart.");
+        }
+        
+      } else {
+        setErrorMessage(response.data.message || "Payment failed bro.");
+      }
+    } catch (error) {
+      console.error("Error processing payment:", error);
+      setErrorMessage(error.response?.data?.message || "Payment failed sis.");
+    }
+    
   };
 
   // Calculate total price of cart items
   const calculateTotal = () => {
-    return cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
+    return cart.reduce((acc, item) => {
+      const product = item.productId;
+      if (product) {
+        return acc + (product.price * item.quantity); // Calculate price * quantity for each item
+      }
+      return acc;
+    }, 0);
   };
 
   return (
@@ -89,7 +155,13 @@ const Payment = () => {
               <div>
                 {cart.map((item, index) => (
                   <div key={index}>
-                    <Typography variant="body2">{item.name} - {item.quantity} x Rs. {item.price}</Typography>
+                    {item.productId ? (
+                      <Typography variant="body2">
+                        {item.productId.name} - {item.quantity} x Rs. {item.productId.price}
+                      </Typography>
+                    ) : (
+                      <Typography variant="body2">Item not available</Typography>
+                    )}
                   </div>
                 ))}
               </div>
@@ -225,3 +297,5 @@ const Payment = () => {
 };
 
 export default Payment;
+
+
