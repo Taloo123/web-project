@@ -46,6 +46,7 @@ const TeamManagement = () => {
     const { name, value } = e.target;
     setNewMember({ ...newMember, [name]: value });
   };
+  const name = localStorage.getItem("userName")
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -66,6 +67,7 @@ const TeamManagement = () => {
         setEditingIndex(null);
       } else {
         // Add new member
+        
         await axios.post(API_URL, {
           ...newMember,
           matchesPlayed: parseInt(newMember.matchesPlayed, 10),
@@ -73,6 +75,14 @@ const TeamManagement = () => {
         }, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        // Create a new notification for the user/team
+        const notification = {
+          message : `You added a player named ${newMember.name}`,
+          name: name,
+        };
+
+await axios.post("http://localhost:5000/api/StoreNotification", notification);
+        
 
         fetchTeamMembers(); // Refresh data
       }
@@ -122,8 +132,9 @@ const TeamManagement = () => {
                   <th>Age</th>
                   <th>Role</th>
                   <th>Matches Played</th>
-                  <th>Team</th>
-                  <th>Actions</th>
+                  {/* <th>Team</th> */}
+                  {userRole === "captain" && <th>Actions</th>}
+                  {/* <th>Actions</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -133,9 +144,10 @@ const TeamManagement = () => {
                     <td>{member.age}</td>
                     <td>{member.role}</td>
                     <td>{member.matchesPlayed}</td>
-                    <td>{member.team}</td>
-                    <td>
+                    {/* <td>{member.team}</td> */}
+                   
                       {userRole === "captain" && (
+                        <td>
                         <>
                           <Button
                             variant="contained"
@@ -154,8 +166,9 @@ const TeamManagement = () => {
                             Remove
                           </Button>
                         </>
+                        </td>
                       )}
-                    </td>
+                    
                   </tr>
                 ))}
               </tbody>
