@@ -10,9 +10,16 @@ const Dashboard = () => {
     matchesPlayed: 0,
   });
   const [notifications, setNotifications] = useState([]);
+  const [upcomingMatches, setUpcomingMatches] = useState([]);
 
   const userName = localStorage.getItem("userName");
   console.log("Username: ", userName); // Check if userName is retrieved correctly
+
+  const [financialData, setFinancialData] = useState({
+    revenue: 0,
+    expenses: 0,
+    netProfit: 0,
+  });
 
   useEffect(() => {
     // Fetch user data from the backend API by name
@@ -41,6 +48,39 @@ const Dashboard = () => {
 
     fetchNotifications();
   }, [userName]);
+
+  useEffect(() => {
+    // Fetch financial data from the teamdetails table
+    const fetchFinancialData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/teamdetails/${userData.team}`); // Fetch data for the team
+        setFinancialData(response.data); // Assuming response data contains revenue, expenses, and netProfit
+      } catch (error) {
+        console.error("Error fetching financial data:", error);
+      }
+    };
+
+    if (userData.team) {
+      fetchFinancialData();
+    }
+  }, [userData.team]); // Fetch financial data whenever the team is updated
+
+  useEffect(() => {
+    // Fetch the closest upcoming 3 matches for the user's team
+    const fetchUpcomingMatches = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/upcomingMatches/${userData.team}`);
+        setUpcomingMatches(response.data); // Store upcoming matches in state
+      } catch (error) {
+        console.error('Error fetching upcoming matches:', error);
+      }
+    };
+  
+    if (userData.team) {
+      fetchUpcomingMatches();
+    }
+  }, [userData.team]); // Fetch whenever the team data is updated
+
 
   return (
     <div className="navbar">
@@ -83,16 +123,19 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>25th Nov</td>
-                  <td>3:00 PM</td>
-                  <td>City Stadium</td>
-                </tr>
-                <tr>
-                  <td>30th Nov</td>
-                  <td>5:00 PM</td>
-                  <td>Sports Arena</td>
-                </tr>
+                {upcomingMatches.length > 0 ? (
+                  upcomingMatches.map((match, index) => (
+                    <tr key={index}>
+                      <td>{new Date(match.date).toLocaleDateString()}</td>
+                      <td>{new Date(`${match.date}T${match.time}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</td>
+                      <td>{match.venue}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3">No upcoming matches</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -100,9 +143,9 @@ const Dashboard = () => {
           {/* Financial Overview Section */}
           <div className="dashboard-section financial-overview">
             <h2>Financial Overview</h2>
-            <p>Revenue: $5,000</p>
-            <p>Expenses: $2,000</p>
-            <p>Net Profit: $3,000</p>
+            <p>Revenue: ${financialData.revenue}</p>
+            <p>Expenses: ${financialData.expenses}</p>
+            <p>Net Profit: ${financialData.netProfit}</p>
           </div>
         </div>
       </div>

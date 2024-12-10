@@ -54,10 +54,15 @@ const Signup = () => {
         role,
       });
 
+      const { token} = response.data;
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+
       // alert(response.data.message);
 
       if (role === "captain") {
-        navigate("/captainForm"); // Redirect to the caption form page
+        navigate("/captainForm", { state: { name } }); // Redirect to the caption form page
       } else {
         alert("User registered successfully!");
         navigate("/signin"); // Redirect to the signin page

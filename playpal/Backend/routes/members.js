@@ -37,8 +37,6 @@ router.get("/", authenticateToken, async (req, res) => {
 });
 
 
-
-
 // Add a new team member
 router.post("/", authenticateToken, async (req, res) => {
   const { name, age, role, matchesPlayed, team } = req.body;
@@ -120,6 +118,39 @@ router.delete("/:id", authenticateToken, async (req, res) => {
     }
 
     res.json({ message: "Member deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+// Add captain to the teammembers 
+router.post("/captain", authenticateToken, async (req, res) => {
+  const { name, age, role, matchesPlayed, team } = req.body;
+
+  if (!name || !age || !role || matchesPlayed == null || !team) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  try {
+    // Check if a team member with the same name already exists for the user
+    const existingMember = await TeamMember.findOne({ name, createdBy: req.user.id });
+    if (existingMember) {
+      return res.status(400).json({ message: "A member with this name already exists" });
+    }
+
+    const newMember = new TeamMember({
+      name,
+      age,
+      role,
+      matchesPlayed,
+      team,
+      createdBy: req.user.id,
+    });
+
+    await newMember.save();
+    res.status(201).json(newMember);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });

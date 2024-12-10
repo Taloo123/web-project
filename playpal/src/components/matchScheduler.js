@@ -5,7 +5,7 @@ import { Typography, Button, TextField } from "@mui/material";
 import axios from "axios";
 
 const MatchScheduler = () => {
-  const [team1, setTeam1] = useState("");
+  const [team1, setTeam1] = useState(""); // Fixed team for the logged-in player
   const [team2, setTeam2] = useState("");
   const [venue, setVenue] = useState("");
   const [date, setDate] = useState("");
@@ -17,9 +17,10 @@ const MatchScheduler = () => {
   const token = localStorage.getItem("token"); // Replace with your auth token retrieval method
   const name = localStorage.getItem("userName");
 
-  // Fetch scheduled matches on component mount
+  // Fetch scheduled matches and player's team on component mount
   useEffect(() => {
     fetchScheduledMatches();
+    fetchPlayerTeam();
   }, []);
 
   const fetchScheduledMatches = async () => {
@@ -33,38 +34,80 @@ const MatchScheduler = () => {
     }
   };
 
+  const fetchPlayerTeam = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/teamMemberByName/${name}`);
+      setTeam1(response.data.team); // Set the team name from the response
+      console.log("TEAM 1: ", response.data.team );
+    } catch (error) {
+      console.error("Error fetching player's team:", error);
+    }
+  };
+
   const handleScheduleMatch = async (e) => {
     e.preventDefault();
 
-    if (team1 && team2 && venue && date && time) {
-      const newMatch = { team1, team2, venue, date, time };
+    if (team1 === team2) {
+      alert("Team 2 cannot be the same as Team 1.");
+      return;
+    }
 
-      // Create a new notification for the user/team
-      const notification = {
-        message: `You scheduled a match between for ${date}`,
-        name: name,
-      };
+    try {
+      // Check if team2 exists in the database
+      const response = await axios.get(`http://localhost:5000/api/matches/teamMembers/${team2}`);
+      if (!response.data.exists) {
+        alert("The selected Team 2 does not exist.");
+        return;
+      }
 
-      try {
+      if (team1 && team2 && venue && date && time) {
+        const newMatch = { team1, team2, venue, date, time };
+
+        // Create a new notification for the user/team
+        const notification = {
+          message: `You scheduled a match between ${team1} and ${team2} on ${date}`,
+          name: name,
+        };
+
         await axios.post(API_URL, newMatch, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Send the notification to the backend
-        console.log("Notification: ", notification);
-        await axios.post('http://localhost:5000/api/StoreNotification', notification);
+        await axios.post("http://localhost:5000/api/StoreNotification", notification);
 
         fetchScheduledMatches(); // Refresh match list
-        // Clear form inputs
-        setTeam1("");
         setTeam2("");
         setVenue("");
         setDate("");
         setTime("");
-      } catch (error) {
-        console.error("Error scheduling match:", error);
+
+        // Show an alert once the match is scheduled successfully
+        alert(`Match between ${team1} and ${team2} scheduled successfully!`);
+      } else {
+        alert("Please fill in all fields to schedule the match.");
       }
-    } else {
-      alert("Please fill in all fields to schedule the match.");
+    } catch (error) {
+      console.error("Error scheduling match:", error);
+    }
+  };
+
+  const handleTeam2Change = async (e) => {
+    const value = e.target.value;
+    setTeam2(value);
+
+    // Optionally validate the team in real-time
+    if (value === team1) {
+      alert("Team 2 cannot be the same as Team 1.");
+      setTeam2("");
+      return;
+    }
+
+    try {
+      const response = await axios.get(`http://localhost:5000/api/matches/teamMembers/${value}`);
+      if (!response.data.exists) {
+        alert("The selected Team 2 does not exist.");
+      }
+    } catch (error) {
+      console.error("Error validating Team 2:", error);
     }
   };
 
@@ -103,20 +146,23 @@ const MatchScheduler = () => {
           {/* Match Scheduling Form */}
           <form onSubmit={handleScheduleMatch} className="match-scheduler__form">
             <TextField
-              label="Team 1 Name"
               variant="outlined"
               value={team1}
-              onChange={(e) => setTeam1(e.target.value)}
+              placeholder={team1 || "Loading..."} 
               fullWidth
               margin="normal"
               className="text-field"
+              InputProps={{
+                readOnly: true, // Make the input field read-only
+              }}
               required
             />
+
             <TextField
               label="Team 2 Name"
               variant="outlined"
               value={team2}
-              onChange={(e) => setTeam2(e.target.value)}
+              onChange={handleTeam2Change}
               fullWidth
               margin="normal"
               className="text-field"
