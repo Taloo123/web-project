@@ -86,43 +86,44 @@ router.put("/:id", authenticateToken, async (req, res) => {
   const { name, age, role, matchesPlayed, team } = req.body;
 
   try {
-    const updatedMember = await TeamMember.findOneAndUpdate(
-      { _id: id, createdBy: req.user.id },
+    // Update the team member with the provided data
+    const updatedMember = await TeamMember.findByIdAndUpdate(
+      id,
       { name, age, role, matchesPlayed, team },
-      { new: true }
+      { new: true, runValidators: true } // Return the updated document and validate the input
     );
 
     if (!updatedMember) {
-      return res.status(404).json({ message: "Member not found" });
+      return res.status(404).json({ message: "Failed to update team member" });
     }
 
-    res.json(updatedMember);
+    res.status(200).json(updatedMember);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error updating team member:", error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 // Delete a team member
 router.delete("/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   try {
-    const deletedMember = await TeamMember.findOneAndDelete({
-      _id: id,
-      createdBy: req.user.id,
-    });
+    // Delete the team member without checking the creator
+    const deletedMember = await TeamMember.findByIdAndDelete(id);
 
     if (!deletedMember) {
-      return res.status(404).json({ message: "Member not found" });
+      return res.status(404).json({ message: "Team member not found" });
     }
 
-    res.json({ message: "Member deleted successfully" });
+    res.status(200).json({ message: "Member deleted successfully" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error deleting team member:", error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
+
 
 
 // Add captain to the teammembers 
