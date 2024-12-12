@@ -34,16 +34,18 @@ router.post("/", authenticateToken, async (req, res) => {
 router.get("/", authenticateToken, async (req, res) => {
   const userId = req.user.id;
   console.log(`Fetching cart for user: ${userId}`);
-  try {
+    try {
     
-    const cart = await Cart.findOne({ userId })
+    let cart = await Cart.findOne({ userId })
       .populate("items.productId")
       .exec();
 
     if (!cart) {
-  
+     
+        cart = new Cart({ userId, items: [] });
+      
       console.warn(`Cart not found for user: ${userId}`);
-      return res.status(404).json({ message: "Cart not found" });
+     
     }
 
     res.status(200).json(cart);
