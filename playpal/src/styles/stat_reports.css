@@ -96,6 +96,10 @@
     button.MuiButton-outlinedSecondary {
       font-size: 14px;
     }
+
+    .statistics-container1{
+      margin-left: -35px;
+    }
   }
   
   /* Chart-specific styles */

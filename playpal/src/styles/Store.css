@@ -5,22 +5,21 @@
     background-image: url('../../images/pexels-unknown6user-1657332.jpg'); /* Add a sports-related image URL */
     color: #ffffff;
     min-height: 100vh;
-    padding: 20px;
-    width:100vw;
+    /* padding: 20px; */
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     position: relative;
   }
-.store-content {
-    
+.store-content {   
     margin-top: 20px;
     background: #ffffff;
     color: #1b1f3b;
     border-radius: 15px;
     padding: 20px;
-    width: 80%;
+    width: 80% !important;
     box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
   }
   .store-content:hover{
@@ -140,5 +139,14 @@
 
   .str-btn {
     font-size: 0.9rem; /* Adjust button size */
+  }
+
+  .store-content{
+    width: 80% !important;
+    margin-left: 40px !important;
+  }
+
+  .store-container .product-card{
+    margin-left: 18%;
   }
 }

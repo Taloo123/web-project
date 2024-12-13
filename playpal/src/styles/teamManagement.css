@@ -164,3 +164,28 @@
       opacity: 1;
     }
   }
+
+
+  @media (max-width: 768px) {
+    .team-management-content{
+      margin-left: -50px;
+    }
+
+    .action-button.remove{
+      margin-top: 5px;
+    }
+
+    .action-button.edit{
+      width: 85px !important;
+      margin-left: 20px;
+    }
+
+    .team-table{
+      margin-left: -5px;
+    }
+
+  .team-table th,
+  .team-table td {
+   font-size: 12px;
+  }
+  }

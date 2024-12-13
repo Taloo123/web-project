@@ -52,7 +52,7 @@ html, body {
   box-shadow: 0px 0px 10px rgba(255, 69, 0, 0.7); /* Subtle glow when clicked */
 }
 /* Navbar responsiveness */
-@media (max-width: 600px) {
+@media (max-width: 800px) {
   .navbar {
     flex-direction: column;
     text-align: center;
@@ -82,7 +82,7 @@ html, body {
 }
 
 /* For medium screens and above */
-@media (min-width: 601px) {
+@media (min-width: 801px) {
   .nav-links {
     display: flex; /* Show links for larger screens */
   }
